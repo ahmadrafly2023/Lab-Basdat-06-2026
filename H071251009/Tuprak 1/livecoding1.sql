@@ -1,0 +1,6 @@
+CREATE TABLE cabang_bengkel (
+	id_cabang INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	nama_cabang VARCHAR(50) NOT NULL UNIQUE,
+	alamat VARCHAR (100) NOT NULL
+);
+

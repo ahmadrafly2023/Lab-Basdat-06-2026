@@ -1,4 +1,4 @@
-CREATE DATABASE db_jaya_motor;
+INTOCREATE DATABASE db_jaya_motor;
 
 CREATE TABLE cabang_bengkel(
 	id_cabang INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,

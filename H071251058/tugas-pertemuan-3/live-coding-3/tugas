@@ -1,0 +1,11 @@
+SELECT
+	ordernumber,
+	UPPER(productCode) AS "Kode Produk",
+	LEFT(productCode, 3) AS "Awal Kode",
+	RIGHT(productCode, 3) AS "Akhir Kode",
+	quantityOrdered,
+	priceEach,
+	quantityOrdered * priceEach AS "Total Penjualan"
+FROM classicmodels.orderdetails
+WHERE (quantityordered BETWEEN 20 AND 50 OR priceEach < 30) AND LEFT(productCode, 3) = 'S18' AND orderNumber % 2 = 1
+ORDER BY quantityOrdered * priceEach DESC

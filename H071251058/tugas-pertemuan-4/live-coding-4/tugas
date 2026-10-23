@@ -1,0 +1,8 @@
+SELECT
+	customerNumber AS "Nomor Pelanggan",
+	count(*) AS "Frekuensi Pembayaran",
+	SUM(amount) AS "Total Transaksi"
+FROM classicmodels.payments
+GROUP BY customerNumber
+HAVING COUNT(*) > 5
+ORDER BY "Total Transaksi" DESC;

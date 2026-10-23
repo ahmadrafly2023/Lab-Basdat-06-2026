@@ -1,0 +1,21 @@
+SET search_path TO classicmodels;
+
+SELECT c.contactfirstName AS namaPelanggan, 
+	ofc.addressline1 AS namaPerusahaan, 
+	c.country AS negaraKantor,
+	CONCAT(firstName, ' ', lastName) AS namaPegawai,
+	COUNT(DISTINCT p) AS frekuensiPembayaran,
+	SUM(p.amount) AS totalPembayaran
+FROM customers c
+JOIN employees e
+ON c.salesrepemployeenumber = e.employeenumber
+JOIN offices ofc
+ON e.officeCode = ofc.officeCode
+JOIN payments p
+ON c.customerNumber = p.customerNumber
+WHERE c.country <> 'USA' AND c.contactfirstname ILIKE '%a%' 
+GROUP BY c.customerNumber, ofc.addressline1, c.country, namaPegawai
+HAVING SUM(p.amount) > 50000 AND COUNT(DISTINCT p) >= 2
+ORDER BY totalPembayaran DESC
+
+SELECT * FROM classicmodels.customers;

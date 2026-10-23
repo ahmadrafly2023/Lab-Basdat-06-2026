@@ -1,0 +1,78 @@
+SET search_path TO classicmodels;
+
+SELECT * FROM offices;
+SELECT * FROM employees;
+
+-- Soal 01 --
+SELECT c.contactfirstname, c.customerName, of.city, CONCAT(firstName, ' ', lastName) AS salesRepName
+FROM classicmodels.customers c
+JOIN employees e
+ON c.salesrepemployeenumber = e.employeeNumber
+JOIN offices of
+ON e.officeCode = of.officeCode
+WHERE c.contactfirstname ILIKE 'A%' AND of.city <> 'NYC'
+ORDER BY c.customerName ASC;
+
+-- Soal 02 --
+SELECT c.customerName, SUM(p.amount) AS totalPayment, MAX(p.amount) AS maxSinglePayment
+FROM classicmodels.customers c
+JOIN payments p
+ON c.customerNumber = p.customerNumber
+GROUP BY c.customerNumber
+HAVING SUM(p.amount) > 50000
+ORDER BY totalPayment DESC;
+
+-- Soal 03 --
+SELECT c.customerName, COUNT(DISTINCT p) AS totalOrder, ROUND(AVG(od.quantityOrdered), 2) AS AvgQuantityperOrder
+FROM classicmodels.customers c
+JOIN orders o
+ON c.customerNumber = o.customerNumber
+JOIN orderdetails od
+ON o.orderNumber = od.orderNumber
+JOIN payments p
+ON c.customerNumber = p.customerNumber
+GROUP BY c.customerNumber
+HAVING COUNT(DISTINCT p) > 3 AND ROUND(AVG(od.quantityOrdered), 2) > 35
+ORDER BY totalOrder DESC, AvgQuantityperOrder DESC;
+
+-- Soal 04 --
+SELECT pl.productLine, SUM(od.quantityOrdered) AS totalTerjual, ROUND(AVG(od.priceEach), 2) AS rataRataHarga, ROUND(AVG((p.msrp - od.priceEach) / p.msrp * 100), 2) AS AvgDiscountPercentage
+FROM classicmodels.productLines pl
+JOIN products p
+ON pl.productLine = p.productLine
+JOIN orderdetails od
+ON p.productCode = od.productCode
+GROUP BY pl.productLine
+HAVING SUM(od.quantityOrdered) > 3000 AND ROUND(AVG(od.priceEach), 2) > 80
+ORDER BY totalTerjual DESC;
+
+-- Soal 05 --
+SELECT 
+    c.customerName, 
+    SUM(od.quantityOrdered * od.priceEach) AS totalTransaksi, 
+    COUNT(DISTINCT o.orderNumber) AS totalShippedOrders, 
+    ROUND(SUM(od.quantityOrdered * od.priceEach) / COUNT(DISTINCT o.orderNumber), 2) AS avgTransactionperOrder
+FROM classicmodels.customers c
+JOIN orders o 
+ON c.customerNumber = o.customerNumber
+JOIN orderdetails od 
+ON o.orderNumber = od.orderNumber
+WHERE o.status = 'Shipped'
+GROUP BY c.customerNumber
+HAVING COUNT(DISTINCT EXTRACT(YEAR FROM o.orderDate)) > 1
+ORDER BY totalTransaksi DESC
+LIMIT 5;
+
+SELECT c.customerName, c.city AS customerCity, of.city AS officeCity, SUM(od.quantityOrdered) AS totalUnitTerjual, ROUND(SUM(od.quantityOrdered * od.priceEach) / COUNT(DISTINCT o.orderNumber), 2) AS avgNilaiperOrder
+FROM customers c
+JOIN employees e
+ON c.salesrepemployeenumber = e.employeenumber
+JOIN offices of
+ON e.officeCode = of.officeCode
+JOIN orders o
+ON c.customerNumber = o.customerNumber
+JOIN orderdetails od
+ON o.orderNumber = od.orderNumber
+WHERE of.territory = 'EMEA' 
+GROUP BY c.customerNumber, of.city
+HAVING COUNT(DISTINCT EXTRACT(year FROM o.orderDate)) > 2 AND SUM(od.quantityOrdered) > 1000 AND ROUND(SUM(od.quantityOrdered * od.priceEach) / COUNT(DISTINCT o.orderNumber)) > 10000

@@ -1,0 +1,68 @@
+SET search_path TO classicmodels;
+
+-- Soal SET search_path TO classicmodels;
+
+-- Soal 01
+SELECT 
+	pr.productcode,
+	pr.productname,
+	pr.msrp AS hargaEceran, 
+	pr.quantityInStock AS stokTersedia,
+	CASE
+		WHEN pr.msrp < 50 AND pr.quantityInStock > 500 THEN 'Ekonomis - Stok Tinggi'
+		WHEN pr.msrp < 50 AND pr.quantityInStock <= 500 THEN 'Ekonomis - Stok Rendah'
+		WHEN (pr.msrp BETWEEN 50 AND 100) AND pr.quantityInStock > 500 THEN 'Harga Menengah - Stok Tinggi'
+		WHEN (pr.msrp BETWEEN 50 AND 100) AND pr.quantityInStock <= 500 THEN 'Harga Menengah - Stok Rendah'
+		ELSE 'Harga Premium - Stok Tinggi'
+	END AS karakteristik
+FROM classicmodels.products pr
+ORDER BY pr.msrp DESC;
+
+-- soal 02
+SELECT 	productCode,
+		SUM(quantityordered) AS totalOrdered,
+		COUNT(DISTINCT orderNumber) banyakPemesanan
+FROM orderdetails
+GROUP BY productCode
+HAVING SUM(quantityordered) > (
+	SELECT AVG(quantityOrdered) 
+	FROM classicmodels.orderdetails) AND
+	COUNT(DISTINCT orderNumber) > 10
+ORDER BY totalOrdered DESC;
+
+-- Soal 03
+SELECT 	productCode,
+		productName,
+		quantityInstock,
+		msrp
+FROM classicmodels.products
+WHERE quantityInStock > (
+	SELECT AVG(quantityInStock)
+	FROM products) 
+AND msrp > (
+	SELECT AVG(msrp)
+	FROM products)
+ORDER BY quantityInStock DESC;
+
+-- Soal 04
+BEGIN;
+
+UPDATE orders
+SET status = 'Shipped'
+WHERE orderNumber = '10100'
+
+SAVEPOINT status_pengiriman;
+
+UPDATE orders
+SET status = 'Cancelled'
+WHERE orderNumber = '10100'
+
+SELECT * FROM orders 
+WHERE orderNumber = 10100;
+
+ROLLBACK TO SAVEPOINT status_pengiriman;
+
+COMMIT;
+
+-- Soal 05 
+
